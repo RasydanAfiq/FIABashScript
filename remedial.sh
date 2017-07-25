@@ -1,5 +1,7 @@
 # ! /bin/bash
 
+#6.2.1.15
+
 #6.2.1.18
 remauditrules=`grep actions /etc/audit/audit.rules`
 auditrules='-w /var/log/sudo.log -p wa -k actions'
