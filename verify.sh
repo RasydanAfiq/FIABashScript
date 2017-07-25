@@ -52,6 +52,7 @@ chkmodules=`grep modules /etc/audit/audit.rules`
 
 
 #6.2.1.20
+chkimmute=`grep "^-e 2" /etc/audit/audit.rules`
 
 
 
