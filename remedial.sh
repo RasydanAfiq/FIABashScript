@@ -67,3 +67,85 @@ then
 fi
 
 pkill -HUP -P 1 auditd
+
+#6.2.1.19
+remmod1=`grep "\-w /sbin/insmod -p x -k modules" /etc/audit/audit.rules`
+remmod2=`grep "\-w /sbin/rmmod -p x -k modules" /etc/audit/audit.rules`
+remmod3=`grep "\-w /sbin/modprobe -p x -k modules" /etc/audit/audit.rules`
+remmod4=`grep "\-a always,exit -F arch=b64 -S init_module -S delete_module -k modules" /etc/audit/audit.rules`
+
+if [ -z "$remmod1" -o -z "$remmod2" -o -z "$remmod3" -o -z "$remmod4" -o -z "$remmod5" ]
+then
+	if [ -z "$remmod1" ]
+	then
+		echo "-w /sbin/insmod -p x -k modules" >> /etc/audit/audit.rules
+	fi
+
+	if [ -z "$remmod2" ]
+	then	
+		echo "-w /sbin/rmmod -p x -k modules" >> /etc/audit/audit.rules
+	fi
+
+	if [ -z "$remmod3" ]
+	then
+		echo "-w /sbin/modprobe -p x -k modules" >> /etc/audit/audit.rules
+	fi
+
+	if [ -z "$remmod4" ]
+	then
+		echo "-a always,exit -F arch=b64 -S init_module -S delete_module -k modules" >> /etc/audit/audit.rules
+	fi
+fi
+
+#6.2.1.20
+remimmute=`grep "^-e 2" /etc/audit/audit.rules`
+immute='-e 2'
+
+if [ -z "$remimmute" -o "$remimmute" != "$immute" ]
+then
+	echo "$immute" >> /etc/audit/audit.rules
+fi
+
+#6.2.1.21
+remlogrotate=`grep "/var/log" /etc/logrotate.d/syslog`
+logrotate='/var/log/messages /var/log/secure /var/log/maillog /var/log/spooler /var/log/boot.log /var/log/cron {'
+
+if [ -z "$remlogrotate" -o "$remlogrotate" != "$logrotate" ]
+then
+	rotate1=`grep "/var/log/messages" /etc/logrotate.d/syslog`
+	rotate2=`grep "/var/log/secure" /etc/logrotate.d/syslog`
+	rotate3=`grep "/var/log/maillog" /etc/logrotate.d/syslog`
+	rotate4=`grep "/var/log/spooler" /etc/logrotate.d/syslog`
+	rotate5=`grep "/var/log/boot.log" /etc/logrotate.d/syslog`
+	rotate6=`grep "/var/log/cron" /etc/logrotate.d/syslog`
+	
+	if [ -z "$rotate1" ]
+	then
+		echo "/var/log/messages" >> /etc/logrotate.d/syslog
+	fi
+
+	if [ -z "$rotate2" ]
+	then
+		echo "/var/log/secure" >> /etc/logrotate.d/syslog
+	fi
+
+	if [ -z "$rotate3" ]
+	then 
+		echo "/var/log/maillog" >> /etc/logrotate.d/syslog
+	fi
+
+	if [ -z "$rotate4" ]
+	then
+		echo "/var/log/spooler" >> /etc/logrotate.d/syslog
+	fi
+
+	if [ -z "$rotate5" ]
+	then
+		echo "/var/log/boot.log" >> /etc/logrotate.d/syslog
+	fi
+
+	if [ -z "$rotate6" ]
+	then
+		echo "/var/log/cron" //etc/logrotate.d/syslog
+	fi
+fi
