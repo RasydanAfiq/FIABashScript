@@ -137,6 +137,20 @@ fi
 
 pkill -P 1 -HUP auditd
 
+#6.2.1.14 Collect Use of Privileged Commands
+find / -xdev \( -perm -4000 -o -perm -2000 \) -type f | awk '{print "-a always,exit-F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }' > /tmp/1.log
+checkprivilege=`cat /tmp/1.log`
+cat /etc/audit/audit.rules | grep -- "$checkprivilege" > /tmp/2.log 
+checkprivilegenotinfile=`grep -F -x -v -f /tmp/2.log /tmp/1.log`
+
+if [ -n "$checkprivilegenotinfile" ]
+then
+	echo "$checkprivilegenotinfile" >> /etc/audit/audit.rules
+fi
+
+rm /tmp/1.log
+rm /tmp/2.log
+
 #6.2.1.15 Collect Successful File System Mounts
 bit64mountb64=`grep "\-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts" /etc/audit/audit.rules`
 bit64mountb32=`grep "\-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts" /etc/audit/audit.rules`
@@ -283,8 +297,6 @@ then
 
 	if [ -z "$rotate6" ]
 	then
-		echo "/var/log/cron" //etc/logrotate.d/syslog
+		echo "/var/log/cron" >> /etc/logrotate.d/syslog
 	fi
 fi
-
-pkill -P 1 -HUP auditd
