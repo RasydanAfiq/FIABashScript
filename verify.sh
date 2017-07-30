@@ -63,7 +63,23 @@ else
         echo "PASSED - Successful attempts to access files."
 fi
 
+#6.2.1.14 Collect Use of Privileged Commands
+find / -xdev \( -perm -4000 -o -perm -2000 \)  -type f | awk '{print "-a always, exit-F path=" $1 " -F perm=x -F auid>=1000 -F auid!=4294967295 -k privileged" }' > /tmp/1.log
 
+checkprivilege=`cat /tmp/1.log`
+cat /etc/audit/audit.rules | grep -- "$checkprivilege" > /tmp/2.log
+
+checkprivilegenotinfile=`grep -F -x -v -f /tmp/2.log /tmp/1.log`
+
+if [ -n "$checkprivilegenotinfile" ]
+then
+	echo "FAILED - Privileged Commands not in audit"
+else
+	echo "PASSED - Privileged Commands in audit"
+fi
+
+rm /tmp/1.log
+rm /tmp/2.log 
 
 #6.2.1.15 Collect Successful File System Mounts
 bit64mountb64=`grep "\-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=4294967295 -k mounts" /etc/audit/audit.rules`
@@ -72,9 +88,9 @@ bit32mountb32=`grep "\-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!
 
 if [ -z "$bit64mountb64" -o -z "$bit64mountb32" -o -z "$bit32mountb32" ]
 then
-	echo "FAIL - To determine filesystem mounts" 
+	echo "FAILED - To determine filesystem mounts" 
 else
-	echo "PASS - To determine filesystem mounts"
+	echo "PASSED - To determine filesystem mounts"
 fi
 
 #6.2.1.16 Collect File Delection Events by User
@@ -84,9 +100,9 @@ bit32delb32=`grep "\-a always,exit -F arch=b32 -S unlink -S unlinkat -S rename -
 
 if [ -z "$bit64delb64" -o -z "$bit64delb32" -o -z "$bit32delb32" ]
 then
-	echo "FAIL - To determine the file delection event by user"
+	echo "FAILED - To determine the file delection event by user"
 else
-	echo "PASS - To determine the file delection event by user"
+	echo "PASSED - To determine the file delection event by user"
 fi
 
 #6.2.1.17 Collect Changes to System Administration Scope
@@ -95,9 +111,9 @@ sudoers='-w /etc/sudoers -p wa -k scope'
 
 if [ -z "$chkscope" -o "$chkscope" != "$sudoers" ]
 then
-	echo "FAIL - To unauthorize change to scope of system administrator activity"
+	echo "FAILED - To unauthorize change to scope of system administrator activity"
 else
-	echo "PASS - To unauthorize change to scope of system administrator activity"
+	echo "PASSED - To unauthorize change to scope of system administrator activity"
 fi
 
 #6.2.1.18 
